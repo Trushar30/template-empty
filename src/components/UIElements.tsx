@@ -1,27 +1,36 @@
-import React from "react";
-import { easeOutCubic, easeOutBack, interpolateProgress } from "./Animations";
+import React from 'react';
+import { interpolate } from 'remotion';
 
+// Premium Glass Card with dynamic glow
 interface GlassCardProps {
   children: React.ReactNode;
-  className?: string;
   blur?: number;
   opacity?: number;
+  glow?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
   children,
-  className = "",
   blur = 20,
   opacity = 0.05,
+  glow = false,
+  className = '',
+  style = {},
 }) => {
   return (
     <div
       className={className}
       style={{
+        backgroundColor: `rgba(255, 255, 255, ${opacity})`,
         backdropFilter: `blur(${blur}px)`,
-        background: `rgba(255, 255, 255, ${opacity})`,
-        border: "1px solid rgba(255, 255, 255, 0.2)",
-        borderRadius: "24px",
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '24px',
+        boxShadow: glow
+          ? '0 0 32px rgba(124, 58, 237, 0.5), 0 8px 32px rgba(0, 0, 0, 0.2)'
+          : '0 8px 32px rgba(0, 0, 0, 0.1)',
+        ...style,
       }}
     >
       {children}
@@ -29,210 +38,305 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   );
 };
 
+// Premium Glow Button with ripple effect
 interface PulseButtonProps {
   frame: number;
-  scale?: number;
-  opacity?: number;
+  isActive?: boolean;
+  size?: number;
   children?: React.ReactNode;
-  onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 export const PulseButton: React.FC<PulseButtonProps> = ({
   frame,
-  scale = 1,
-  opacity = 1,
+  isActive = false,
+  size = 80,
   children,
-  onClick,
+  style = {},
 }) => {
-  const pulseScale = 1 + 0.2 * Math.sin((frame / 30) * Math.PI * 2);
-  const glowOpacity = 0.4 + 0.3 * Math.sin((frame / 30) * Math.PI * 2);
+  const pulseScale = interpolate(
+    (frame % 120) / 120,
+    [0, 1],
+    [1, 1.1],
+    { easing: (t) => Math.sin(t * Math.PI) }
+  );
+
+  const pulseOpacity = interpolate(
+    (frame % 120) / 120,
+    [0, 1],
+    [0.6, 0],
+    { easing: (t) => 1 - t * t }
+  );
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Outer glow pulse */}
+    <div style={{ position: 'relative', width: size, height: size, ...style }}>
+      {/* Pulse ring */}
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           inset: 0,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(124, 58, 237, 0.6), transparent)",
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.6), transparent)',
+          opacity: pulseOpacity,
           transform: `scale(${pulseScale})`,
-          opacity: glowOpacity,
-          filter: "blur(8px)",
+          pointerEvents: 'none',
         }}
       />
 
-      {/* Button */}
-      <button
-        onClick={onClick}
+      {/* Main button */}
+      <div
         style={{
-          position: "relative",
-          width: "80px",
-          height: "80px",
-          borderRadius: "50%",
-          background: `linear-gradient(135deg, #7C3AED, #9F67FF)`,
-          border: "2px solid rgba(255, 255, 255, 0.3)",
-          backdropFilter: "blur(10px)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transform: `scale(${scale})`,
-          opacity: opacity,
-          boxShadow: "0 0 24px rgba(124, 58, 237, 0.6)",
-          fontSize: "32px",
-          color: "white",
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #7C3AED 0%, #9F67FF 100%)',
+          boxShadow: isActive
+            ? '0 0 40px rgba(124, 58, 237, 0.8), 0 0 20px rgba(159, 103, 255, 0.6)'
+            : '0 0 24px rgba(124, 58, 237, 0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
         }}
       >
-        {children || "+"}
-      </button>
+        {children}
+      </div>
     </div>
   );
 };
 
-interface FloatingNavBarProps {
-  frame: number;
-  activeTab: number;
-  onTabChange: (index: number) => void;
+// iPhone Mockup Frame
+interface DeviceMockupProps {
+  children: React.ReactNode;
+  width?: number;
+  height?: number;
 }
 
-const tabs = [
-  { icon: "📚", label: "Resources" },
-  { icon: "👥", label: "Classes" },
-  { icon: "⚡", label: "Create" },
-  { icon: "🎮", label: "Play" },
-];
-
-export const FloatingNavBar: React.FC<FloatingNavBarProps> = ({
-  frame,
-  activeTab,
-  onTabChange,
+export const DeviceMockup: React.FC<DeviceMockupProps> = ({
+  children,
+  width = 400,
+  height = 820,
 }) => {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width,
+        height,
+        borderRadius: '56px',
+        border: '14px solid #1a1a1a',
+        overflow: 'hidden',
+        boxShadow: '0 40px 80px rgba(0, 0, 0, 0.8)',
+        aspectRatio: '9 / 19.5',
+      }}
+    >
+      {/* Notch */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '140px',
+          height: '28px',
+          backgroundColor: '#000',
+          borderRadius: '0 0 40px 40px',
+          zIndex: 10,
+        }}
+      />
+      {children}
+    </div>
+  );
+};
+
+// Floating Navigation Bar
+interface NavBarProps {
+  activeTab: number;
+  frame: number;
+}
+
+export const FloatingNavBar: React.FC<NavBarProps> = ({
+  activeTab,
+  frame,
+}) => {
+  const tabs = [
+    { icon: '🏠', label: 'Home' },
+    { icon: '📚', label: 'Classes' },
+    { icon: '✨', label: 'AI' },
+    { icon: '👤', label: 'Profile' },
+  ];
+
   return (
     <GlassCard
       blur={30}
-      opacity={0.08}
-      className=""
+      opacity={0.1}
       style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-around",
-        width: "350px",
-        height: "70px",
-        margin: "0 auto",
-      } as React.CSSProperties}
+        position: 'absolute',
+        bottom: 20,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        gap: '8px',
+        padding: '12px 16px',
+        minWidth: '320px',
+        justifyContent: 'center',
+      }}
     >
-      {tabs.map((tab, index) => {
-        const isActive = index === activeTab;
-        const hoverScale = isActive ? 1.1 : 1;
-        const glowOpacity = isActive ? 0.6 : 0;
+      <div
+        style={{
+          display: 'flex',
+          gap: '32px',
+          width: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {tabs.map((tab, idx) => {
+          const isActive = idx === activeTab;
+          const bounceScale = isActive
+            ? interpolate((frame % 20) / 20, [0, 0.5, 1], [1, 1.15, 1], {
+                easing: (t) =>
+                  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+              })
+            : 1;
 
-        return (
-          <div key={index} style={{ position: "relative" }}>
-            {/* Glow indicator */}
+          return (
             <div
+              key={idx}
               style={{
-                position: "absolute",
-                inset: "-8px",
-                background: "radial-gradient(circle, rgba(124, 58, 237, 0.4), transparent)",
-                borderRadius: "16px",
-                opacity: glowOpacity,
-              }}
-            />
-
-            {/* Tab button */}
-            <button
-              onClick={() => onTabChange(index)}
-              style={{
-                position: "relative",
-                background: "transparent",
-                border: "none",
-                color: isActive ? "#9F67FF" : "rgba(255, 255, 255, 0.6)",
-                fontSize: "24px",
-                cursor: "pointer",
-                transform: `scale(${hoverScale})`,
-                transition: "all 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                position: 'relative',
+                transform: `scale(${bounceScale})`,
+                transformOrigin: 'center',
               }}
             >
-              {tab.icon}
-            </button>
-          </div>
-        );
-      })}
+              <div
+                style={{
+                  fontSize: '24px',
+                  opacity: isActive ? 1 : 0.6,
+                  textShadow: isActive
+                    ? '0 0 16px rgba(124, 58, 237, 0.8)'
+                    : 'none',
+                }}
+              >
+                {tab.icon}
+              </div>
+              {isActive && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '-8px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #7C3AED, #9F67FF)',
+                    boxShadow: '0 0 12px rgba(124, 58, 237, 0.8)',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
     </GlassCard>
   );
 };
 
-interface SceneProps {
-  frame: number;
-  durationInFrames: number;
-  startFrame?: number;
-}
-
-interface AnimatedTextProps extends SceneProps {
-  text: string;
-  delay?: number;
-  duration?: number;
+// Premium gradient text
+interface GradientTextProps {
+  children: string;
+  from?: string;
+  to?: string;
+  size?: number;
+  weight?: number;
   style?: React.CSSProperties;
 }
 
-export const AnimatedText: React.FC<AnimatedTextProps> = ({
-  frame,
-  startFrame = 0,
-  text,
-  delay = 0,
-  duration = 30,
+export const GradientText: React.FC<GradientTextProps> = ({
+  children,
+  from = '#7C3AED',
+  to = '#9F67FF',
+  size = 48,
+  weight = 700,
   style = {},
 }) => {
-  const progress = interpolateProgress(
-    frame,
-    startFrame + delay,
-    startFrame + delay + duration
-  );
-  const eased = easeOutCubic(progress);
-
   return (
     <div
       style={{
-        opacity: eased,
-        transform: `translateY(${(1 - eased) * 20}px)`,
+        fontSize: size,
+        fontWeight: weight,
+        background: `linear-gradient(135deg, ${from}, ${to})`,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        fontFamily: 'Space Grotesk, sans-serif',
+        letterSpacing: '-0.5px',
         ...style,
       }}
     >
-      {text}
+      {children}
     </div>
   );
 };
 
-interface GradientIconProps {
+// Animated feature card
+interface FeatureCardProps {
+  title: string;
+  icon: string;
+  color: string;
   frame: number;
-  size?: number;
-  delay?: number;
-  duration?: number;
+  startFrame: number;
+  duration: number;
 }
 
-export const GradientIcon: React.FC<GradientIconProps> = ({
+export const FeatureCard: React.FC<FeatureCardProps> = ({
+  title,
+  icon,
+  color,
   frame,
-  size = 60,
-  delay = 0,
-  duration = 30,
+  startFrame,
+  duration,
 }) => {
-  const progress = interpolateProgress(frame, delay, delay + duration);
-  const eased = easeOutBack(progress);
+  const progress = Math.max(0, Math.min(1, (frame - startFrame) / duration));
+
+  const scale = interpolate(progress, [0, 1], [0.8, 1], {
+    easing: (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  });
+
+  const opacity = interpolate(progress, [0, 1], [0, 1]);
 
   return (
     <div
       style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        borderRadius: "16px",
-        background: `linear-gradient(135deg, #7C3AED, #9F67FF)`,
-        opacity: eased,
-        transform: `scale(${eased})`,
-        boxShadow: "0 0 24px rgba(124, 58, 237, 0.6)",
+        opacity,
+        transform: `scale(${scale})`,
       }}
-    />
+    >
+      <GlassCard
+        blur={25}
+        opacity={0.08}
+        glow
+        style={{
+          padding: '32px 24px',
+          minWidth: '280px',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>{icon}</div>
+        <div
+          style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#fff',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}
+        >
+          {title}
+        </div>
+      </GlassCard>
+    </div>
   );
 };
 
@@ -240,6 +344,7 @@ export default {
   GlassCard,
   PulseButton,
   FloatingNavBar,
-  AnimatedText,
-  GradientIcon,
+  GradientText,
+  FeatureCard,
+  DeviceMockup,
 };

@@ -1,4 +1,3 @@
-import { useFrame } from "remotion";
 import "./styles.css";
 import SceneA_Dashboard from "./components/SceneA_Dashboard";
 import SceneB_QuickActions from "./components/SceneB_QuickActions";

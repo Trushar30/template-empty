@@ -1,188 +1,537 @@
-# ExamSprint Product Reveal Video - Setup Guide
+# ExamSprint Product Reveal Video - Premium Edition
 
-## Overview
-This is a professional product reveal video for ExamSprint built with **Remotion** (React + Video). The video is 16 seconds long (960 frames at 60fps) and features premium glassmorphism design, fluid animations, and Apple-esque product cinematography.
+A **16-second cinematic product reveal** for ExamSprint built with Remotion. Features Apple-grade glassmorphism, fluid motion design, and premium creative direction.
 
-## Project Structure
+## Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Preview in Remotion Studio (interactive, hot-reload)
+pnpm run dev
+
+# Export final video (1920×1080, 60fps, ~3-5 min)
+pnpm run build
+```
+
+The preview loads at `http://localhost:3000` with real-time scrubbing and instant frame updates.
+
+## Video Overview
+
+**Duration:** 16 seconds | **Resolution:** 1920×1080 | **Frame Rate:** 60 FPS | **Total Frames:** 960
+
+### Timeline Breakdown
+
+| Scene | Duration | Start Frame | Content |
+|-------|----------|-------------|---------|
+| **A: Dashboard** | 5s | 0 | Device boot, navigation reveal, feature showcase |
+| **B: Quick Actions** | 3s | 300 | FAB pulse, menu slide-up, staggered actions |
+| **C: Modules** | 4s | 480 | Feature grid, cards reveal, capabilities |
+| **D: Call-to-Action** | 4s | 720 | Logo reveal, benefits, "Join Beta" button |
+
+## Project Architecture
 
 ```
 src/
-├── Composition.tsx              # Main video composition, orchestrates all scenes
-├── Root.tsx                     # Remotion configuration
-├── index.ts                     # Entry point
-├── styles.css                   # Global styles and animations
+├── Composition.tsx                  # Video orchestrator (scene routing)
+├── Root.tsx                         # Remotion config (resolution, FPS, duration)
+├── styles.css                       # Design tokens, keyframes, fonts
+│
 └── components/
-    ├── Animations.tsx           # Easing functions and animation utilities
-    ├── UIElements.tsx           # Reusable glass components
-    ├── SceneA_Dashboard.tsx      # Device mockup + navigation bar (0-5s)
-    ├── SceneB_QuickActions.tsx   # FAB button + menu interaction (5-8s)
-    ├── SceneC_Modules.tsx        # Feature modules showcase (8-12s)
-    └── SceneD_CTA.tsx            # Branding + call-to-action (12-16s)
+    ├── UIElements.tsx              # Reusable component library
+    │   ├── GlassCard               # Frosted glass container
+    │   ├── PulseButton             # Animated FAB with glow
+    │   ├── FloatingNavBar          # Bottom navigation
+    │   ├── DeviceMockup            # iPhone frame
+    │   ├── GradientText            # Premium text gradients
+    │   └── FeatureCard             # Showcase cards
+    │
+    ├── Animations.tsx              # Easing functions & utilities
+    │   ├── easeOutCubic            # Smooth deceleration
+    │   ├── easeOutBack             # Snappy bounce
+    │   ├── easeInOutCubic          # Bidirectional smooth
+    │   └── helpers                 # Stagger, pulse, float
+    │
+    ├── SceneA_Dashboard.tsx        # Frames 0-300 (5s)
+    │   ├── Device boot animation
+    │   ├── Navigation bar reveal
+    │   ├── Feature card stagger
+    │   └── Tab cycling
+    │
+    ├── SceneB_QuickActions.tsx     # Frames 300-480 (3s)
+    │   ├── FAB pulse rings
+    │   ├── FAB rotation on tap
+    │   ├── Menu slide-up
+    │   └── Action card stagger
+    │
+    ├── SceneC_Modules.tsx          # Frames 480-720 (4s)
+    │   ├── Title reveal
+    │   ├── Feature grid layout
+    │   ├── Card stagger entrance
+    │   └── Background gradients
+    │
+    └── SceneD_CTA.tsx              # Frames 720-960 (4s)
+        ├── Logo scale-in
+        ├── Feature callouts
+        ├── CTA button pulse
+        └── Corner accents
 ```
 
-## Video Breakdown
+## Design System
+
+### Color Palette
+
+**Primary Purple** (hero accent)
+- Light: `#7C3AED` | Dark: `#9F67FF`
+- Gradient: `linear-gradient(135deg, #7C3AED, #9F67FF)`
+- Glow: `0 0 32px rgba(124, 58, 237, 0.5)`
+
+**Secondary Emerald** (positive actions)
+- Light: `#10B981` | Dark: `#34D399`
+- Gradient: `linear-gradient(135deg, #10B981, #34D399)`
+- Glow: `0 0 24px rgba(16, 185, 129, 0.3)`
+
+**Backgrounds**
+- Dark: `#0B0B14` → `#13132A` (gradient)
+- Light overlay: `rgba(0, 0, 0, 0.4)`
+- Glass: `rgba(255, 255, 255, 0.05)`
+
+### Typography
+
+**Space Grotesk** (headings)
+- Weights: 400, 500, 600, 700
+- Letter spacing: -0.5px (tight)
+- Size range: 16px - 56px
+
+**Inter** (body text)
+- Weights: 400, 500, 600
+- Letter spacing: normal
+- Size range: 12px - 24px
+
+Both fonts auto-loaded via Google Fonts CDN.
+
+## Component Reference
+
+### GlassCard
+Frosted glass container with backdrop blur and optional glow.
+
+```tsx
+<GlassCard
+  blur={25}              // backdrop-filter blur (px)
+  opacity={0.1}          // background opacity
+  glow={false}           // enable glow shadow
+  style={{ padding: '32px' }}
+>
+  {children}
+</GlassCard>
+```
+
+**Props:**
+- `blur` (number): 10-30px recommended
+- `opacity` (number): 0.05-0.2 recommended
+- `glow` (boolean): adds `0 0 32px rgba(124, 58, 237, 0.5)`
+- `style` (CSSProperties): custom overrides
+
+### PulseButton
+Animated FAB with breathing glow and ripple rings.
+
+```tsx
+<PulseButton
+  frame={frame}          // animation timeline frame
+  isActive={true}        // intensity toggle
+  size={120}             // diameter in pixels
+>
+  +
+</PulseButton>
+```
+
+**Features:**
+- Infinite sine-wave pulse
+- Dynamic shadow glow
+- Ripple effect rings (2 layers)
+- GPU-accelerated transforms
+
+### FloatingNavBar
+Bottom navigation with 4 tabs, active indicator, bounce animation.
+
+```tsx
+<FloatingNavBar
+  activeTab={activeTab}  // 0-3
+  frame={frame}          // animation frame
+/>
+```
+
+**Tabs:** Home, Classes, AI, Profile (emoji-based icons)
+
+### DeviceMockup
+Realistic iPhone Pro frame with bezel, notch, and drop shadow.
+
+```tsx
+<DeviceMockup width={420} height={860}>
+  <div style={{ width: '100%', height: '100%' }}>
+    {screen_content}
+  </div>
+</DeviceMockup>
+```
+
+### FeatureCard
+Card component for showcase with staggered entrance animation.
+
+```tsx
+<FeatureCard
+  title="Resource Hub"
+  icon="📚"
+  color="124, 58, 237"    // RGB for dynamic glow
+  frame={frame}
+  startFrame={480}
+  duration={150}
+/>
+```
+
+### GradientText
+Text with premium gradient fill and tight tracking.
+
+```tsx
+<GradientText
+  from="#7C3AED"
+  to="#9F67FF"
+  size={48}
+  weight={700}
+>
+  ExamSprint
+</GradientText>
+```
+
+## Scene Details
 
 ### Scene A: Dashboard (0-5 seconds)
-- iPhone mockup "boots up" with gradient background
-- ExamSprint dashboard reveals with glassmorphic UI
-- Navigation bar with 4 tabs (Resources, Classes, Create, Play)
-- Interactive tab switching with glow effects
-- Text overlay: "Beautiful, Intuitive Interface"
+
+**Visual Elements:**
+- iPhone Pro mockup (1920×1080 canvas, scaled 420×860)
+- Dark gradient background (0B0B14 → 13132A)
+- Status bar (time, signal)
+- Dashboard header: "Welcome to ExamSprint"
+- 3 feature cards (Resource Hub, Study Groups, AI Playground)
+- Floating navigation bar (Home, Classes, AI, Profile)
+- Ambient light glow effect
+
+**Animation Timeline:**
+- 0-90 frames: Device boot (scale + opacity)
+- 120-180 frames: Navigation bar slides up
+- 90-150 frames: Dashboard content fades in
+- 0-300 frames: Navigation tabs cycle with bounce
+- 100-200 frames: Each feature card stagger (50 frames apart)
+
+**Key Animation:**
+```tsx
+const bootOpacity = interpolate(progress, [0, 0.15, 1], [0, 0, 1]);
+const navBarY = interpolate(progress, [0.4, 0.7], [200, 0]);
+const contentOpacity = interpolate(progress, [0.2, 0.5], [0, 1]);
+```
 
 ### Scene B: Quick Actions (5-8 seconds)
-- Floating Action Button (FAB) pulses with glow
-- Quick Actions menu slides up from bottom
-- 4 action items stagger-animate into view (Create Class, Join Class, Quick Note, Start Quiz)
-- Each action has gradient icons and color-coded backgrounds
-- Text overlay: "One Tap, Infinite Actions"
+
+**Visual Elements:**
+- Central FAB button (120px, purple gradient)
+- Animated glow rings (2 layers radiating)
+- Backdrop blur overlay
+- Quick Actions menu (glassmorphic)
+- 2 action cards (Create Class, Join Class)
+- Floating particles constellation
+
+**Animation Timeline:**
+- 0-120 frames: FAB scales up (easeOutBack bounce)
+- 180-300 frames: FAB rotates 45° on tap
+- 120-240 frames: Menu slides up from bottom
+- 180-300 frames: Create Class card stagger
+- 240-360 frames: Join Class card stagger
+
+**Key Animation:**
+```tsx
+const fabScale = interpolate(progress, [0, 0.2], [0, 1], { easing: easeOutBack });
+const menuY = interpolate(progress, [0.4, 0.7], [200, 0]);
+const backdropOpacity = interpolate(progress, [0.3, 0.5], [0, 0.6]);
+```
 
 ### Scene C: Modules (8-12 seconds)
-- Animated grid background with subtle pattern
-- 3 module cards with staggered entrance animation
-- Resource Hub, Study Groups, AI Playground features showcased
-- Gradient icons and glassmorphic cards
-- Each card has hover-like styling and glow effects
-- Text overlay: "Everything You Need to Excel"
 
-### Scene D: CTA (12-16 seconds)
-- Animated particles in background
-- ExamSprint logo reveals with scale and glow
-- Features list staggered fade-in (Intuitive Design, Lightning Fast, Secure & Private, AI-Powered)
-- "Get Started Now" button with gradient
-- Final full-screen logo reveal with opacity fade
+**Visual Elements:**
+- Section title: "Core Features" / "Everything You Need to Excel"
+- 3-column feature grid
+- Feature cards (Resource Hub, Study Groups, AI Playground)
+- Tag pills (Notes, PYQs, Collaborate, Share, Smart, etc.)
+- Background gradient elements (animated glow)
+- Floating particle constellation
 
-## Technical Specs
+**Animation Timeline:**
+- 0-90 frames: Title reveals (fade + slideUp)
+- 90-240 frames: Grid layout established
+- 120-240 frames: Resource Hub card stagger
+- 180-300 frames: Study Groups card stagger
+- 240-360 frames: AI Playground card stagger (with extra glow)
 
-- **Resolution:** 1920x1080 (Full HD)
-- **Frame Rate:** 60 FPS
-- **Duration:** 960 frames (16 seconds)
-- **Color System:**
-  - Primary: Electric Purple (#7C3AED to #9F67FF)
-  - Secondary: Emerald Green (#10B981)
-  - Dark Background: #0B0B14, #13132A
-- **Typography:** Space Grotesk (headings), Inter (body)
-- **Effects:** Glassmorphism, blur, glow shadows, smooth easing
-
-## Getting Started
-
-### 1. Install Dependencies
-```bash
-pnpm install
+**Key Animation:**
+```tsx
+const titleOpacity = interpolate(progress, [0, 0.15], [0, 1]);
+const cardProgress = (progress - delay) / duration;
+const cardScale = interpolate(cardProgress, [0, 1], [0.85, 1], { easing: easeOutBack });
 ```
 
-### 2. Run Development Server
-```bash
-pnpm run dev
+### Scene D: Call-to-Action (12-16 seconds)
+
+**Visual Elements:**
+- ExamSprint logo (gradient text in glassmorphic badge)
+- Tagline: "Your Learning Hub, Reimagined"
+- 3 feature callouts with icons (⚡ Smart, 👥 Collaborative, ✨ Personalized)
+- "Join Beta" button (gradient, pulsing glow)
+- Corner accent lines (4 animated lines)
+- Floating light particles
+- Background gradient elements (continuous)
+
+**Animation Timeline:**
+- 0-120 frames: Logo scales in (easeOutBack)
+- 90-210 frames: Subtitle fades in
+- 210-270 frames: Feature callout 1
+- 270-330 frames: Feature callout 2
+- 330-390 frames: Feature callout 3
+- 420-510 frames: CTA button appears + pulses
+- 240+ frames: Corner accents animate
+
+**Key Animation:**
+```tsx
+const logoScale = interpolate(progress, [0, 0.2], [0.5, 1], { easing: easeOutBack });
+const ctaScale = interpolate(progress, [0.7, 0.85], [0, 1]);
+const ctaPulse = interpolate((frame % 60) / 60, [0, 60], [1, 1.05]);
 ```
 
-This opens the Remotion Studio at `http://localhost:3000` where you can:
-- Preview the video in real-time
-- Scrub through timeline
-- Export as MP4 or sequence
+## Animation Easing Reference
 
-### 3. Export Video
-```bash
-pnpm run build
-# Output: out/ExamSprintReveal.mp4
+### EaseOutCubic
+Smooth, natural deceleration. Use for fade-ins/outs and general transitions.
+```tsx
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 ```
 
-## Animation Architecture
+### EaseOutBack
+Snappy bounce effect with slight overshoot. Perfect for entrance animations.
+```tsx
+const easeOutBack = (t) => {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return c3 * t * t * t - c1 * t * t;
+};
+```
 
-All animations use custom easing functions:
-- **EaseOutCubic** - Standard smooth fade-in/out
-- **EaseOutQuad** - Quadratic easing for scale effects
-- **EaseOutBack** - Bouncy overshoot for entrance animations
-- **EaseInOutCubic** - Smooth bidirectional animations
+### EaseInOutCubic
+Smooth acceleration in, smooth deceleration out. For interactive animations.
+```tsx
+const easeInOutCubic = (t) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+```
 
-Frame-based timeline:
-- Each scene calculates its own `startFrame` and uses `interpolateProgress()` to calculate animation progress
-- `getStaggerValue()` helper creates staggered entrance effects for multiple items
-
-## Customization
+## Customization Guide
 
 ### Change Brand Colors
-Edit `/src/styles.css` CSS variables:
+
+Edit `/src/styles.css`:
 ```css
---color-purple: #7C3AED;
---color-emerald: #10B981;
---color-dark-bg: #0B0B14;
+:root {
+  --color-purple: #YOUR_PRIMARY;
+  --color-purple-light: #YOUR_PRIMARY_LIGHT;
+  --color-emerald: #YOUR_SECONDARY;
+  /* ... */
+}
 ```
 
-### Modify Scene Timing
-Edit `/src/Composition.tsx`:
-```typescript
-const sceneA_start = 0;      // Change where Scene A starts
+Then update component gradients:
+```tsx
+background: `linear-gradient(135deg, ${your_color1}, ${your_color2})`
+```
+
+### Adjust Animation Timing
+
+Edit `/src/Composition.tsx` scene start frames:
+```tsx
+const sceneA_start = 0;      // Change timing
 const sceneB_start = 300;    // Adjust transitions
+const sceneC_start = 480;
+const sceneD_start = 720;
 ```
 
-### Update Copy/Text
-Each scene has hardcoded text. Edit:
-- Dashboard title: `SceneA_Dashboard.tsx`
-- Feature labels: `SceneB_QuickActions.tsx`, `SceneC_Modules.tsx`
-- CTA text: `SceneD_CTA.tsx`
-
-### Add/Remove Feature Cards
-Modify the `modules` array in `/src/components/SceneC_Modules.tsx`:
-```typescript
-const modules = [
-  { icon: "📚", title: "...", description: "...", gradient: "..." },
-  // Add more here
-];
+To slow down entire video, increase `durationInFrames` in `/src/Root.tsx`:
+```tsx
+<Composition
+  durationInFrames={1200}  // Default: 960 (16s)
+  fps={60}
+/>
 ```
 
-## Performance Tips
+### Modify Scene Content
 
-1. **Optimize Blur Effects** - Glassmorphism blur can be expensive; consider using CSS filters
-2. **Use `transform`** - All animations use GPU-accelerated transforms (scale, translateY, etc.)
-3. **Memoize Components** - Wrap components with `React.memo()` if re-renders are heavy
-4. **Test Exports** - Always render a test section before full 16-second export
+Each scene is fully editable:
 
-## Export Formats
+**Dashboard (SceneA_Dashboard.tsx):**
+- Edit dashboard text, card titles, descriptions
+- Change feature icons (use emoji or replace with SVG)
+- Adjust card colors/gradients
 
-- **MP4 (H.264)** - Best for web, email, social media
-- **WebM** - Modern web browsers
-- **PNG Sequence** - For further editing in After Effects/Premiere
+**Quick Actions (SceneB_QuickActions.tsx):**
+- Modify action card labels
+- Change icon styles
+- Adjust menu appearance
 
-## Rendering Settings
+**Modules (SceneC_Modules.tsx):**
+- Update feature cards content
+- Add/remove cards from grid
+- Modify tag pills
 
-Default export settings (edit in `remotion.config.ts` if needed):
-- Codec: h264
-- Quality: 90
-- Pixel format: yuv420p
-- Audio: N/A (video only)
+**CTA (SceneD_CTA.tsx):**
+- Change logo text
+- Update tagline/subtitle
+- Modify feature callouts
+- Edit CTA button text
+
+### Add Custom Fonts
+
+Replace Google Fonts import in `/src/styles.css`:
+```css
+@import url('https://fonts.googleapis.com/css2?family=YourFont:wght@400;700&display=swap');
+```
+
+Then update `fontFamily` in components:
+```tsx
+fontFamily: 'YourFont, sans-serif'
+```
+
+## Performance Optimization
+
+### 1. Reduce Blur Effects
+Backdrop blur is expensive. Cap at 20-25px:
+```tsx
+blur={20}  // Not 30+
+```
+
+### 2. Limit Particles
+Keep floating particles to 6-8 total across all scenes.
+
+### 3. GPU Acceleration
+Always use `transform` instead of `left`/`top`:
+```tsx
+// ✅ Good (GPU accelerated)
+transform: `translateX(${x}px) scale(${scale})`
+
+// ❌ Bad (CPU intensive)
+left: `${x}px`; top: `${y}px`;
+```
+
+### 4. Optimize Rendering
+Export with H.264 codec and high concurrency:
+```bash
+pnpm run build -- --concurrency 8 --codec h264
+```
+
+## Export Instructions
+
+### Standard MP4 (H.264)
+```bash
+pnpm run build
+# Output: out/video.mp4 (~20-30MB, high compatibility)
+```
+
+### Smaller WebM (VP9)
+```bash
+pnpm run build -- --codec vp9
+# Output: out/video.webm (~10-15MB, slower render ~8-10 min)
+```
+
+### Add Audio Track
+
+1. Export video: `pnpm run build`
+2. Use FFmpeg:
+```bash
+ffmpeg -i out/video.mp4 -i music.mp3 -c:v copy -c:a aac -shortest final.mp4
+```
+
+### Custom Resolution
+
+Edit `/src/Root.tsx`:
+```tsx
+<Composition
+  width={1280}    // Default: 1920
+  height={720}    // Default: 1080
+  fps={30}        // Default: 60 (lower = faster render)
+/>
+```
 
 ## Troubleshooting
 
-### Video Not Rendering
-- Check for console errors in Remotion Studio
-- Ensure all imports are correct
-- Verify `Root.tsx` composition matches `Composition.tsx` duration/fps
+| Issue | Solution |
+|-------|----------|
+| "Composition with ID MyComp not found" | Verify `id="MyComp"` in `Root.tsx` |
+| Fonts not rendering | Clear cache (Cmd+Shift+R), check Google Fonts import |
+| Animations stuttering | Reduce blur (20px), lower concurrency, close other apps |
+| File size too large | Switch to WebM codec, reduce resolution, compress post-export |
+| Colors look different | Check display color profile, export will be accurate |
+| Export hangs/timeout | Check system RAM (~4GB needed), reduce video length for testing |
 
-### Animation Jumpy/Stuttering
-- Check if frame calculations are correct
-- Ensure `interpolateProgress()` is being used properly
-- Profile performance in Chrome DevTools
+## File Size Reference
 
-### Colors Not Showing Correctly
-- Verify CSS is imported in `Composition.tsx`
-- Check browser color profile (export will be accurate)
-- Use hex codes, not RGB values for consistency
+| Format | Duration | File Size | Render Time |
+|--------|----------|-----------|------------|
+| MP4 (H.264) | 16s | 20-30MB | 3-5 min |
+| WebM (VP9) | 16s | 10-15MB | 8-10 min |
+| 1280×720 MP4 | 16s | 8-12MB | 1-2 min |
+| With audio | +50MB | - | +1-2 min |
 
-## Future Enhancements
+## Dependencies
 
-- [ ] Add audio sync/music bed
-- [ ] Add particle effects library
-- [ ] Create light mode variant
-- [ ] Add transition effects between scenes
-- [ ] Implement dynamic text from config file
-- [ ] Add callout animations (arrows, highlights)
+```json
+{
+  "remotion": "^4.0.0",
+  "react": "^19.2.0",
+  "react-dom": "^19.2.0"
+}
+```
+
+All dependencies auto-installed via `pnpm install`.
+
+## Development Workflow
+
+1. **Preview:** `pnpm run dev` → Edit scenes → Hot reload
+2. **Test Export:** Build short segment for quality check
+3. **Final Export:** `pnpm run build` → Full 16-second video
+4. **Post-Production:** Add audio, color grade in After Effects/Premiere if needed
+
+## Browser Support
+
+- **Preview:** Chrome/Firefox/Safari (latest)
+- **Rendering:** Node.js 16+ required
+- **Export:** FFmpeg auto-downloaded by Remotion
 
 ## Resources
 
-- [Remotion Documentation](https://www.remotion.dev)
-- [React Documentation](https://react.dev)
-- [Easing Visualizer](https://easings.net)
+- **[Remotion Docs](https://www.remotion.dev)** — Complete API reference
+- **[Easings.net](https://easings.net)** — Easing function visualizer
+- **[Google Fonts](https://fonts.google.com)** — Free premium typography
+
+## Credits
+
+Built with:
+- [Remotion](https://www.remotion.dev) — React video engine
+- [React 19](https://react.dev) — Component framework
+- [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) — Premium headings
+- [Inter](https://fonts.google.com/specimen/Inter) — Legible body font
+
+Design inspired by Apple's WWDC keynotes and premium AI product reveals (minimal, clean, motion-forward).
 
 ---
 
-**Built with ❤️ using Remotion and React**
+## Next Steps
+
+1. Run `pnpm run dev` to preview in Remotion Studio
+2. Customize content in each scene component
+3. Adjust colors in `/src/styles.css`
+4. Export final video with `pnpm run build`
+
+**Ready to create something amazing? Let's go! 🚀**

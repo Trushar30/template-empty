@@ -1,270 +1,401 @@
-import React from "react";
-import { GlassCard, AnimatedText } from "./UIElements";
-import {
-  interpolateProgress,
-  easeOutCubic,
-  easeOutBack,
-  getStaggerValue,
-} from "./Animations";
+import React from 'react';
+import { AbsoluteFill, interpolate } from 'remotion';
+import { GlassCard } from './UIElements';
 
 interface SceneD_CTAProps {
   frame: number;
   startFrame: number;
 }
 
-const features = [
-  "✨ Intuitive Design",
-  "⚡ Lightning Fast",
-  "🔒 Secure & Private",
-  "🤖 AI-Powered",
-];
+const SceneD_CTA: React.FC<SceneD_CTAProps> = ({ frame, startFrame }) => {
+  const progress = Math.max(0, Math.min(1, (frame - startFrame) / 240));
 
-export const SceneD_CTA: React.FC<SceneD_CTAProps> = ({
-  frame,
-  startFrame,
-}) => {
-  // Background animation
-  const bgProgress = interpolateProgress(frame, startFrame, startFrame + 60);
-  const bgOpacity = easeOutCubic(bgProgress);
-
-  // Logo/Title entrance
-  const titleProgress = interpolateProgress(frame, startFrame + 40, startFrame + 120);
-  const titleOpacity = easeOutCubic(titleProgress);
-  const titleScale = easeOutBack(titleProgress);
-
-  // Feature items stagger
-  const featuresStartFrame = startFrame + 140;
-  const staggeredFeatures = features.map((_, index) => {
-    const featureProgress = getStaggerValue(
-      index,
-      features.length,
-      interpolateProgress(frame, featuresStartFrame, featuresStartFrame + 240),
-      0.08
-    );
-    return {
-      opacity: easeOutCubic(featureProgress),
-      translateY: (1 - easeOutCubic(featureProgress)) * 20,
-    };
+  // Logo scale and fade
+  const logoScale = interpolate(progress, [0, 0.2], [0.5, 1], {
+    easing: (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
   });
+  const logoOpacity = interpolate(progress, [0, 0.2], [0, 1]);
+  const logoY = interpolate(progress, [0, 0.2], [60, 0]);
 
-  // CTA button animation
-  const ctaProgress = interpolateProgress(frame, startFrame + 320, startFrame + 380);
-  const ctaOpacity = easeOutCubic(ctaProgress);
-  const ctaScale = easeOutBack(ctaProgress);
+  // Subtitle animation
+  const subtitleOpacity = interpolate(progress, [0.15, 0.35], [0, 1]);
+  const subtitleY = interpolate(progress, [0.15, 0.35], [40, 0]);
 
-  // Final logo reveal and glow
-  const finalLogoProgress = interpolateProgress(frame, startFrame + 380, startFrame + 420);
-  const finalLogoOpacity = easeOutCubic(finalLogoProgress);
-  const glowIntensity = 0.3 + 0.3 * Math.sin((frame / 15) * Math.PI);
+  // Feature callouts stagger
+  const feature1Progress = Math.max(0, Math.min(1, (progress - 0.35) / 0.12));
+  const feature2Progress = Math.max(0, Math.min(1, (progress - 0.47) / 0.12));
+  const feature3Progress = Math.max(0, Math.min(1, (progress - 0.59) / 0.12));
+
+  const featureScale = (p: number) =>
+    interpolate(p, [0, 1], [0.9, 1], {
+      easing: (t) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+    });
+
+  const featureOpacity = (p: number) => interpolate(p, [0, 1], [0, 1]);
+  const featureX = (p: number) => interpolate(p, [0, 1], [-40, 0]);
+
+  // CTA button
+  const ctaScale = interpolate(progress, [0.7, 0.85], [0, 1], {
+    easing: (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  });
+  const ctaOpacity = interpolate(progress, [0.7, 0.85], [0, 1]);
+
+  // Pulse animation for CTA
+  const ctaPulse = interpolate(
+    (frame - startFrame) % 60,
+    [0, 60],
+    [1, 1.05],
+    { easing: (t) => Math.sin(t * Math.PI) }
+  );
+
+  // Background glow animation
+  const bgGlowOpacity = interpolate(progress, [0, 1], [0.3, 0.8]);
 
   return (
-    <div
+    <AbsoluteFill
       style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #0B0B14, #13132A)",
-        padding: "60px 40px",
-        position: "relative",
-        overflow: "hidden",
-        opacity: bgOpacity,
+        background: 'linear-gradient(135deg, #0B0B14 0%, #13132A 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px 40px',
+        overflow: 'hidden',
       }}
     >
-      {/* Animated background particles effect */}
+      {/* Background gradient elements */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.3,
+          position: 'absolute',
+          width: '1000px',
+          height: '1000px',
+          borderRadius: '50%',
+          background:
+            'radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent)',
+          filter: 'blur(120px)',
+          top: '-300px',
+          left: '-300px',
+          pointerEvents: 'none',
+          opacity: bgGlowOpacity * 0.6,
         }}
-      >
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              width: "2px",
-              height: "2px",
-              background: "#7C3AED",
-              borderRadius: "50%",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animation: `float 6s ease-in-out infinite`,
-              opacity: 0.5,
-            }}
-          />
-        ))}
-      </div>
+      />
 
-      {/* Main Content Container */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "40px",
-          zIndex: 1,
+          position: 'absolute',
+          width: '800px',
+          height: '800px',
+          borderRadius: '50%',
+          background:
+            'radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent)',
+          filter: 'blur(100px)',
+          bottom: '-200px',
+          right: '-200px',
+          pointerEvents: 'none',
+          opacity: bgGlowOpacity * 0.4,
+        }}
+      />
+
+      {/* Main content */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          textAlign: 'center',
+          maxWidth: '800px',
         }}
       >
         {/* ExamSprint Logo */}
         <div
           style={{
-            opacity: titleOpacity,
-            transform: `scale(${titleScale})`,
-            textAlign: "center",
+            opacity: logoOpacity,
+            transform: `scale(${logoScale}) translateY(${logoY}px)`,
+            marginBottom: '24px',
           }}
         >
-          {/* Logo icon */}
           <div
             style={{
-              width: "100px",
-              height: "100px",
-              borderRadius: "24px",
-              background: "linear-gradient(135deg, #7C3AED, #9F67FF)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "48px",
-              marginBottom: "24px",
-              boxShadow: `0 0 40px rgba(124, 58, 237, ${glowIntensity})`,
-              margin: "0 auto 24px",
+              display: 'inline-block',
+              padding: '16px 32px',
+              borderRadius: '20px',
+              background:
+                'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(159, 103, 255, 0.1))',
+              border: '1px solid rgba(124, 58, 237, 0.3)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 0 32px rgba(124, 58, 237, 0.3)',
             }}
           >
-            📚
-          </div>
-
-          {/* Logo text */}
-          <h1
-            style={{
-              color: "rgba(255, 255, 255, 0.95)",
-              fontSize: "48px",
-              fontWeight: "800",
-              fontFamily: "Space Grotesk, sans-serif",
-              letterSpacing: "-1px",
-              margin: "0 0 8px 0",
-            }}
-          >
-            ExamSprint
-          </h1>
-          <p
-            style={{
-              color: "rgba(255, 255, 255, 0.6)",
-              fontSize: "16px",
-              margin: "0",
-            }}
-          >
-            Smart Learning, Faster Results
-          </p>
-        </div>
-
-        {/* Features List */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-            alignItems: "center",
-          }}
-        >
-          {features.map((feature, index) => (
             <div
-              key={index}
               style={{
-                opacity: staggeredFeatures[index].opacity,
-                transform: `translateY(${staggeredFeatures[index].translateY}px)`,
+                fontSize: '56px',
+                fontWeight: 800,
+                background:
+                  'linear-gradient(135deg, #7C3AED 0%, #9F67FF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                fontFamily: 'Space Grotesk, sans-serif',
+                letterSpacing: '-1px',
               }}
             >
-              <GlassCard blur={20} opacity={0.05}>
-                <div
-                  style={{
-                    padding: "12px 24px",
-                    color: "rgba(255, 255, 255, 0.7)",
-                    fontSize: "15px",
-                    fontFamily: "Space Grotesk, sans-serif",
-                    fontWeight: "500",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {feature}
-                </div>
-              </GlassCard>
+              ExamSprint
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Subtitle */}
+        <div
+          style={{
+            opacity: subtitleOpacity,
+            transform: `translateY(${subtitleY}px)`,
+            marginBottom: '48px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '24px',
+              fontWeight: 600,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              marginBottom: '12px',
+              letterSpacing: '-0.5px',
+            }}
+          >
+            Your Learning Hub, Reimagined
+          </div>
+          <div
+            style={{
+              fontSize: '16px',
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontWeight: 400,
+              lineHeight: '1.6',
+            }}
+          >
+            Share resources, collaborate with peers, and unlock your full potential with AI-powered learning.
+          </div>
+        </div>
+
+        {/* Feature callouts */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            marginBottom: '48px',
+          }}
+        >
+          {/* Feature 1 */}
+          <div
+            style={{
+              opacity: featureOpacity(feature1Progress),
+              transform: `scale(${featureScale(
+                feature1Progress
+              )}) translateX(${featureX(feature1Progress)}px)`,
+              transformOrigin: 'left center',
+            }}
+          >
+            <GlassCard
+              blur={20}
+              opacity={0.08}
+              style={{
+                padding: '16px 20px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                background: 'rgba(124, 58, 237, 0.05)',
+                borderColor: 'rgba(124, 58, 237, 0.3)',
+              }}
+            >
+              <div style={{ fontSize: '20px' }}>⚡</div>
+              <div
+                style={{
+                  fontSize: '14px',
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  fontWeight: 500,
+                }}
+              >
+                Smart resource discovery with AI-powered search
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Feature 2 */}
+          <div
+            style={{
+              opacity: featureOpacity(feature2Progress),
+              transform: `scale(${featureScale(
+                feature2Progress
+              )}) translateX(${featureX(feature2Progress)}px)`,
+              transformOrigin: 'left center',
+            }}
+          >
+            <GlassCard
+              blur={20}
+              opacity={0.08}
+              style={{
+                padding: '16px 20px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                background: 'rgba(16, 185, 129, 0.05)',
+                borderColor: 'rgba(16, 185, 129, 0.3)',
+              }}
+            >
+              <div style={{ fontSize: '20px' }}>👥</div>
+              <div
+                style={{
+                  fontSize: '14px',
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  fontWeight: 500,
+                }}
+              >
+                Real-time collaboration with study groups
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Feature 3 */}
+          <div
+            style={{
+              opacity: featureOpacity(feature3Progress),
+              transform: `scale(${featureScale(
+                feature3Progress
+              )}) translateX(${featureX(feature3Progress)}px)`,
+              transformOrigin: 'left center',
+            }}
+          >
+            <GlassCard
+              blur={20}
+              opacity={0.08}
+              style={{
+                padding: '16px 20px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                background: 'rgba(124, 58, 237, 0.05)',
+                borderColor: 'rgba(124, 58, 237, 0.3)',
+              }}
+            >
+              <div style={{ fontSize: '20px' }}>✨</div>
+              <div
+                style={{
+                  fontSize: '14px',
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  fontWeight: 500,
+                }}
+              >
+                Personalized study plans powered by AI
+              </div>
+            </GlassCard>
+          </div>
         </div>
 
         {/* CTA Button */}
         <div
           style={{
             opacity: ctaOpacity,
-            transform: `scale(${ctaScale})`,
+            transform: `scale(${ctaScale * ctaPulse})`,
+            transformOrigin: 'center',
           }}
         >
           <button
             style={{
-              padding: "16px 48px",
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, #7C3AED, #9F67FF)",
-              border: "2px solid rgba(255, 255, 255, 0.3)",
-              color: "white",
-              fontSize: "16px",
-              fontWeight: "700",
-              fontFamily: "Space Grotesk, sans-serif",
-              letterSpacing: "-0.3px",
-              cursor: "pointer",
-              boxShadow: "0 0 30px rgba(124, 58, 237, 0.5)",
-              transition: "all 200ms",
+              padding: '16px 48px',
+              borderRadius: '16px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #9F67FF 100%)',
+              color: '#fff',
+              fontSize: '16px',
+              fontWeight: 700,
+              fontFamily: 'Space Grotesk, sans-serif',
+              cursor: 'pointer',
+              boxShadow:
+                '0 0 40px rgba(124, 58, 237, 0.6), 0 0 20px rgba(159, 103, 255, 0.4)',
+              transition: 'all 200ms ease-out',
             }}
           >
-            Get Started Now
+            Join Beta
           </button>
         </div>
-      </div>
 
-      {/* Final ExamSprint Logo - Full Screen */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: finalLogoOpacity,
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        {/* Background glow */}
+        {/* Divider line */}
         <div
           style={{
-            position: "absolute",
-            width: "400px",
-            height: "400px",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(124, 58, 237, ${0.2 * finalLogoOpacity}), transparent)`,
-            filter: "blur(60px)",
+            height: '1px',
+            background:
+              'linear-gradient(to right, transparent, rgba(124, 58, 237, 0.3), transparent)',
+            margin: '40px 0 0 0',
+            opacity: ctaOpacity,
           }}
         />
+      </div>
 
-        {/* Centered logo */}
+      {/* Animated corner accents */}
+      {[
+        { top: 0, left: 0, angle: 0 },
+        { top: 0, right: 0, angle: 90 },
+        { bottom: 0, right: 0, angle: 180 },
+        { bottom: 0, left: 0, angle: 270 },
+      ].map((corner, i) => (
         <div
+          key={i}
           style={{
-            textAlign: "center",
-            color: "rgba(255, 255, 255, 0.1)",
-            fontSize: "120px",
-            fontWeight: "800",
-            fontFamily: "Space Grotesk, sans-serif",
-            letterSpacing: "-2px",
-            opacity: finalLogoOpacity * 0.5,
+            position: 'absolute',
+            width: '100px',
+            height: '100px',
+            pointerEvents: 'none',
+            ...corner,
           }}
         >
-          ExamSprint
+          <div
+            style={{
+              position: 'absolute',
+              width: '2px',
+              height: '40px',
+              background: `linear-gradient(${corner.angle}deg, rgba(124, 58, 237, 0.6), transparent)`,
+              opacity: progress > 0.5 ? 0.6 : 0,
+              ...(corner.top === 0 && corner.left === 0
+                ? { top: 0, left: 0 }
+                : corner.top === 0 && corner.right === 0
+                  ? { top: 0, right: 0 }
+                  : corner.bottom === 0 && corner.right === 0
+                    ? { bottom: 0, right: 0 }
+                    : { bottom: 0, left: 0 }),
+            }}
+          />
         </div>
+      ))}
+
+      {/* Floating particles */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {[...Array(5)].map((_, i) => {
+          const angle = (i / 5) * Math.PI * 2;
+          const radius = 300 + Math.sin((frame + i * 50) / 100) * 60;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+
+          return (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: '2px',
+                height: '2px',
+                borderRadius: '50%',
+                background: 'rgba(124, 58, 237, 0.6)',
+                left: `calc(50% + ${x}px)`,
+                top: `calc(50% + ${y}px)`,
+                boxShadow: '0 0 6px rgba(124, 58, 237, 0.8)',
+                opacity: progress > 0.3 ? 0.7 : 0,
+              }}
+            />
+          );
+        })}
       </div>
-    </div>
+    </AbsoluteFill>
   );
 };
 
