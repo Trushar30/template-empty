@@ -1,6 +1,5 @@
 import React from 'react';
 import { AbsoluteFill, interpolate } from 'remotion';
-import { PulseButton, GlassCard } from './UIElements';
 
 interface SceneB_QuickActionsProps {
   frame: number;
@@ -13,295 +12,176 @@ const SceneB_QuickActions: React.FC<SceneB_QuickActionsProps> = ({
 }) => {
   const progress = Math.max(0, Math.min(1, (frame - startFrame) / 180));
 
-  // FAB entrance
-  const fabScale = interpolate(progress, [0, 0.2], [0, 1], {
-    easing: (t) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  // FAB button scale
+  const fabScale = interpolate(progress, [0, 0.3], [0, 1], {
+    easing: (t) => 1 - Math.pow(1 - t, 3),
   });
 
-  // FAB rotation on tap
-  const fabRotation = interpolate(progress, [0.3, 0.5], [0, 45]);
-
-  // Menu slide up
-  const menuY = interpolate(progress, [0.4, 0.7], [200, 0]);
-  const menuOpacity = interpolate(progress, [0.4, 0.7], [0, 1]);
-
-  // Quick action items stagger
-  const itemDelay = 0.05;
-  const createItemProgress = Math.max(
-    0,
-    Math.min(1, (progress - 0.5) / 0.15)
-  );
-  const joinItemProgress = Math.max(0, Math.min(1, (progress - 0.6) / 0.15));
-
-  const createScale = interpolate(createItemProgress, [0, 1], [0.8, 1], {
-    easing: (t) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  // FAB glow pulse
+  const pulseRing = interpolate((frame % 100) / 100, [0, 1], [1, 1.4], {
+    easing: (t) => Math.sin(t * Math.PI),
   });
-  const createOpacity = interpolate(createItemProgress, [0, 1], [0, 1]);
-  const createY = interpolate(createItemProgress, [0, 1], [30, 0]);
 
-  const joinScale = interpolate(joinItemProgress, [0, 1], [0.8, 1], {
-    easing: (t) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
-  });
-  const joinOpacity = interpolate(joinItemProgress, [0, 1], [0, 1]);
-  const joinY = interpolate(joinItemProgress, [0, 1], [30, 0]);
-
-  // Backdrop blur reveal
-  const backdropOpacity = interpolate(progress, [0.3, 0.5], [0, 0.6]);
+  // Menu items fade in
+  const item1Progress = Math.max(0, Math.min(1, (progress - 0.4) / 0.15));
+  const item2Progress = Math.max(0, Math.min(1, (progress - 0.55) / 0.15));
 
   return (
     <AbsoluteFill
       style={{
         background: 'linear-gradient(135deg, #0B0B14 0%, #13132A 100%)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
       }}
     >
-      {/* Backdrop blur */}
+      {/* Background orb */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
-          opacity: backdropOpacity,
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15), transparent)',
+          filter: 'blur(80px)',
+          bottom: '-200px',
+          right: '-150px',
+          pointerEvents: 'none',
         }}
       />
 
-      {/* Glow rings around FAB */}
-      {[...Array(2)].map((_, i) => {
-        const ringScale = interpolate(
-          (frame - startFrame) % 100,
-          [0, 100],
-          [1, 1.5],
-          { easing: (t) => 1 - t * t }
-        );
-        const ringOpacity = interpolate(
-          (frame - startFrame) % 100,
-          [0, 50, 100],
-          [1, 0.5, 0]
-        );
-
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              width: '200px',
-              height: '200px',
-              borderRadius: '50%',
-              border: '2px solid rgba(124, 58, 237, 0.5)',
-              left: '50%',
-              top: '50%',
-              transform: `translate(-50%, -50%) scale(${ringScale})`,
-              opacity: ringOpacity,
-              pointerEvents: 'none',
-              animation: `none`,
-            }}
-          />
-        );
-      })}
-
-      {/* Central FAB Button */}
+      {/* Main FAB Button */}
       <div
         style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: `translate(-50%, -50%)`,
+          position: 'relative',
+          width: '140px',
+          height: '140px',
+          zIndex: 20,
         }}
       >
-        <PulseButton
-          frame={frame}
-          size={120}
-          isActive={progress > 0.3}
+        {/* Pulse rings */}
+        <div
           style={{
-            transform: `scale(${fabScale}) rotate(${fabRotation}deg)`,
-            filter:
-              progress > 0.3
-                ? 'drop-shadow(0 0 40px rgba(124, 58, 237, 0.8))'
-                : 'drop-shadow(0 0 24px rgba(124, 58, 237, 0.6))',
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4), transparent)',
+            transform: `scale(${pulseRing})`,
+            opacity: 1 - (pulseRing - 1) * 2,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(124, 58, 237, 0.3), transparent)',
+            transform: `scale(${interpolate((frame % 200) / 200, [0, 1], [1, 1.6], { easing: (t) => Math.sin(t * Math.PI) })})`,
+            opacity: 0.6 - ((frame % 200) / 200) * 0.6,
+          }}
+        />
+
+        {/* Main button */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #9F67FF 100%)',
+            boxShadow: '0 0 60px rgba(124, 58, 237, 0.8), 0 0 20px rgba(159, 103, 255, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: `scale(${fabScale})`,
+            fontSize: '56px',
+            cursor: 'pointer',
           }}
         >
-          <span style={{ fontSize: '48px', fontWeight: 300 }}>+</span>
-        </PulseButton>
+          +
+        </div>
       </div>
 
-      {/* Quick Actions Menu */}
+      {/* Quick Action Items */}
       <div
         style={{
           position: 'absolute',
-          bottom: 60,
+          bottom: '120px',
           left: '50%',
-          transform: `translateX(-50%) translateY(${menuY}px)`,
-          opacity: menuOpacity,
+          transform: 'translateX(-50%)',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          width: '100%',
-          maxWidth: '360px',
-          paddingLeft: '20px',
-          paddingRight: '20px',
+          gap: '32px',
+          zIndex: 15,
         }}
       >
-        {/* Create Class Option */}
+        {/* Create Class */}
         <div
           style={{
-            opacity: createOpacity,
-            transform: `scale(${createScale}) translateY(${createY}px)`,
-            transformOrigin: 'center',
+            opacity: interpolate(item1Progress, [0, 1], [0, 1]),
+            transform: `translateY(${interpolate(item1Progress, [0, 1], [60, 0])}px) scale(${interpolate(item1Progress, [0, 1], [0.8, 1])})`,
           }}
         >
-          <GlassCard
-            blur={25}
-            opacity={0.1}
-            glow
+          <div
             style={{
-              padding: '18px 20px',
-              display: 'flex',
-              gap: '16px',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'all 200ms ease-out',
-              background: 'rgba(124, 58, 237, 0.08)',
-              borderColor: 'rgba(124, 58, 237, 0.4)',
-              boxShadow:
-                '0 0 24px rgba(124, 58, 237, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2)',
+              padding: '24px',
+              borderRadius: '20px',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              textAlign: 'center',
+              minWidth: '160px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            <div
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📝</div>
+            <p
               style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #7C3AED, #9F67FF)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                boxShadow: '0 0 20px rgba(124, 58, 237, 0.6)',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#fff',
+                fontFamily: 'Space Grotesk, sans-serif',
+                margin: 0,
               }}
             >
-              ✏️
-            </div>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  marginBottom: '4px',
-                }}
-              >
-                Create Class
-              </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                }}
-              >
-                Start a new study group
-              </div>
-            </div>
-          </GlassCard>
+              Create Class
+            </p>
+          </div>
         </div>
 
-        {/* Join Class Option */}
+        {/* Join Class */}
         <div
           style={{
-            opacity: joinOpacity,
-            transform: `scale(${joinScale}) translateY(${joinY}px)`,
-            transformOrigin: 'center',
+            opacity: interpolate(item2Progress, [0, 1], [0, 1]),
+            transform: `translateY(${interpolate(item2Progress, [0, 1], [60, 0])}px) scale(${interpolate(item2Progress, [0, 1], [0.8, 1])})`,
           }}
         >
-          <GlassCard
-            blur={25}
-            opacity={0.1}
-            glow
+          <div
             style={{
-              padding: '18px 20px',
-              display: 'flex',
-              gap: '16px',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'all 200ms ease-out',
-              background: 'rgba(16, 185, 129, 0.08)',
-              borderColor: 'rgba(16, 185, 129, 0.4)',
-              boxShadow:
-                '0 0 24px rgba(16, 185, 129, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2)',
+              padding: '24px',
+              borderRadius: '20px',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              textAlign: 'center',
+              minWidth: '160px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
             }}
           >
-            <div
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔗</div>
+            <p
               style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #10B981, #34D399)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                boxShadow: '0 0 20px rgba(16, 185, 129, 0.6)',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#fff',
+                fontFamily: 'Space Grotesk, sans-serif',
+                margin: 0,
               }}
             >
-              🔗
-            </div>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  marginBottom: '4px',
-                }}
-              >
-                Join Class
-              </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                }}
-              >
-                Enter group code or search
-              </div>
-            </div>
-          </GlassCard>
+              Join Class
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Floating light particles */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        {[...Array(4)].map((_, i) => {
-          const angle = (i / 4) * Math.PI * 2;
-          const distance = 150 + Math.sin((frame + i * 30) / 60) * 30;
-          const x = Math.cos(angle) * distance;
-          const y = Math.sin(angle) * distance;
-
-          return (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                width: '4px',
-                height: '4px',
-                borderRadius: '50%',
-                background: 'rgba(124, 58, 237, 0.8)',
-                left: `calc(50% + ${x}px)`,
-                top: `calc(50% + ${y}px)`,
-                boxShadow: '0 0 12px rgba(124, 58, 237, 0.8)',
-                opacity: progress > 0.3 ? 0.8 : 0,
-              }}
-            />
-          );
-        })}
       </div>
     </AbsoluteFill>
   );

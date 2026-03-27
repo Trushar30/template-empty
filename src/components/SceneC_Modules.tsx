@@ -1,6 +1,5 @@
 import React from 'react';
 import { AbsoluteFill, interpolate } from 'remotion';
-import { GlassCard, FeatureCard } from './UIElements';
 
 interface SceneC_ModulesProps {
   frame: number;
@@ -13,26 +12,19 @@ const SceneC_Modules: React.FC<SceneC_ModulesProps> = ({
 }) => {
   const progress = Math.max(0, Math.min(1, (frame - startFrame) / 240));
 
-  // Title reveal
-  const titleOpacity = interpolate(progress, [0, 0.15], [0, 1]);
-  const titleY = interpolate(progress, [0, 0.15], [40, 0]);
+  // Title fade in
+  const titleOpacity = interpolate(progress, [0, 0.2], [0, 1]);
+  const titleScale = interpolate(progress, [0, 0.2], [0.9, 1]);
 
-  // Content animation
-  const contentOpacity = interpolate(progress, [0.2, 0.5], [0, 1]);
+  // Card stagger
+  const card1Progress = Math.max(0, Math.min(1, (progress - 0.25) / 0.18));
+  const card2Progress = Math.max(0, Math.min(1, (progress - 0.4) / 0.18));
+  const card3Progress = Math.max(0, Math.min(1, (progress - 0.55) / 0.18));
 
-  // Card animations - staggered entrance
-  const card1Progress = Math.max(0, Math.min(1, (progress - 0.3) / 0.15));
-  const card2Progress = Math.max(0, Math.min(1, (progress - 0.45) / 0.15));
-  const card3Progress = Math.max(0, Math.min(1, (progress - 0.6) / 0.15));
-
-  const cardScale = (p: number) =>
-    interpolate(p, [0, 1], [0.85, 1], {
-      easing: (t) =>
-        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
-    });
-
-  const cardOpacity = (p: number) => interpolate(p, [0, 1], [0, 1]);
-  const cardY = (p: number) => interpolate(p, [0, 1], [50, 0]);
+  const getCardStyle = (cardProgress: number) => ({
+    transform: `translateY(${interpolate(cardProgress, [0, 1], [50, 0])}px) scale(${interpolate(cardProgress, [0, 1], [0.85, 1])})`,
+    opacity: interpolate(cardProgress, [0, 1], [0, 1]),
+  });
 
   return (
     <AbsoluteFill
@@ -46,389 +38,306 @@ const SceneC_Modules: React.FC<SceneC_ModulesProps> = ({
         overflow: 'hidden',
       }}
     >
-      {/* Animated background gradients */}
+      {/* Background orb */}
       <div
         style={{
           position: 'absolute',
           width: '800px',
           height: '800px',
           borderRadius: '50%',
-          background:
-            'radial-gradient(circle, rgba(124, 58, 237, 0.1), transparent)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent)',
           filter: 'blur(100px)',
           top: '-300px',
-          right: '-300px',
+          left: '-200px',
           pointerEvents: 'none',
-          opacity: progress * 0.8,
         }}
       />
 
+      {/* Title Section */}
       <div
         style={{
-          position: 'absolute',
-          width: '600px',
-          height: '600px',
-          borderRadius: '50%',
-          background:
-            'radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent)',
-          filter: 'blur(80px)',
-          bottom: '-200px',
-          left: '-100px',
-          pointerEvents: 'none',
-          opacity: (1 - progress) * 0.6,
-        }}
-      />
-
-      {/* Main content */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 10,
           textAlign: 'center',
-          maxWidth: '1200px',
+          marginBottom: '60px',
+          opacity: titleOpacity,
+          transform: `scale(${titleScale})`,
+          zIndex: 10,
         }}
       >
-        {/* Section title */}
-        <div
+        <h2
           style={{
-            opacity: titleOpacity,
-            transform: `translateY(${titleY}px)`,
-            marginBottom: '40px',
+            fontSize: '48px',
+            fontWeight: 700,
+            color: '#fff',
+            fontFamily: 'Space Grotesk, sans-serif',
+            letterSpacing: '-1px',
+            margin: '0 0 12px 0',
           }}
         >
-          <div
+          Core Features
+        </h2>
+        <p
+          style={{
+            fontSize: '18px',
+            color: 'rgba(255, 255, 255, 0.6)',
+            fontFamily: 'Inter, sans-serif',
+            margin: 0,
+          }}
+        >
+          Everything you need to excel
+        </p>
+      </div>
+
+      {/* Features Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '32px',
+          maxWidth: '1000px',
+          zIndex: 10,
+        }}
+      >
+        {/* Card 1 - Resource Hub */}
+        <div
+          style={{
+            padding: '40px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 40px rgba(124, 58, 237, 0.4)',
+            ...getCardStyle(card1Progress),
+          }}
+        >
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📚</div>
+          <h3
             style={{
-              fontSize: '12px',
-              fontWeight: 600,
-              color: 'rgba(124, 58, 237, 0.8)',
-              textTransform: 'uppercase',
-              letterSpacing: '1.5px',
-              marginBottom: '16px',
-            }}
-          >
-            Core Features
-          </div>
-          <div
-            style={{
-              fontSize: '44px',
+              fontSize: '20px',
               fontWeight: 700,
               color: '#fff',
               fontFamily: 'Space Grotesk, sans-serif',
-              letterSpacing: '-1px',
-              lineHeight: '1.2',
+              margin: '0 0 12px 0',
             }}
           >
-            Everything You Need to Excel
+            Resource Hub
+          </h3>
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: '0 0 16px 0',
+              lineHeight: 1.6,
+            }}
+          >
+            Curated study materials from top students
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Notes
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              PYQs
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Books
+            </span>
           </div>
         </div>
 
-        {/* Features grid */}
+        {/* Card 2 - Study Groups */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px',
-            marginTop: '40px',
-            opacity: contentOpacity,
+            padding: '40px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 40px rgba(124, 58, 237, 0.4)',
+            ...getCardStyle(card2Progress),
           }}
         >
-          {/* Resource Hub Card */}
-          <div
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+          <h3
             style={{
-              opacity: cardOpacity(card1Progress),
-              transform: `scale(${cardScale(
-                card1Progress
-              )}) translateY(${cardY(card1Progress)}px)`,
-              transformOrigin: 'center bottom',
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              margin: '0 0 12px 0',
             }}
           >
-            <GlassCard
-              blur={25}
-              opacity={0.08}
-              glow
+            Study Groups
+          </h3>
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: '0 0 16px 0',
+              lineHeight: 1.6,
+            }}
+          >
+            Learn with peers in interactive sessions
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span
               style={{
-                padding: '32px 24px',
-                background: 'rgba(124, 58, 237, 0.05)',
-                borderColor: 'rgba(124, 58, 237, 0.3)',
-                boxShadow:
-                  '0 0 32px rgba(124, 58, 237, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2)',
-                minHeight: '320px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                color: '#34D399',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
               }}
             >
-              <div
-                style={{
-                  fontSize: '48px',
-                  marginBottom: '8px',
-                }}
-              >
-                📚
-              </div>
-              <div
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                }}
-              >
-                Resource Hub
-              </div>
-              <div
-                style={{
-                  fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  lineHeight: '1.6',
-                  flex: 1,
-                }}
-              >
-                Discover and share curated notes, PDFs, past year questions, and study materials organized by subject.
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  marginTop: 'auto',
-                }}
-              >
-                {['Notes', 'PYQs', 'Slides'].map((tag, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: '11px',
-                      padding: '6px 12px',
-                      borderRadius: '12px',
-                      background: 'rgba(124, 58, 237, 0.2)',
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
+              Collaborate
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                color: '#34D399',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Share
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                color: '#34D399',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Discuss
+            </span>
           </div>
+        </div>
 
-          {/* Study Groups Card */}
-          <div
+        {/* Card 3 - AI Playground */}
+        <div
+          style={{
+            padding: '40px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 40px rgba(124, 58, 237, 0.4)',
+            ...getCardStyle(card3Progress),
+          }}
+        >
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
+          <h3
             style={{
-              opacity: cardOpacity(card2Progress),
-              transform: `scale(${cardScale(
-                card2Progress
-              )}) translateY(${cardY(card2Progress)}px)`,
-              transformOrigin: 'center bottom',
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              margin: '0 0 12px 0',
             }}
           >
-            <GlassCard
-              blur={25}
-              opacity={0.08}
-              glow
-              style={{
-                padding: '32px 24px',
-                background: 'rgba(16, 185, 129, 0.05)',
-                borderColor: 'rgba(16, 185, 129, 0.3)',
-                boxShadow:
-                  '0 0 32px rgba(16, 185, 129, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2)',
-                minHeight: '320px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '48px',
-                  marginBottom: '8px',
-                }}
-              >
-                👥
-              </div>
-              <div
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                }}
-              >
-                Study Groups
-              </div>
-              <div
-                style={{
-                  fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  lineHeight: '1.6',
-                  flex: 1,
-                }}
-              >
-                Join cohorts and collaborate with peers in real-time, share resources, and learn together effectively.
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  marginTop: 'auto',
-                }}
-              >
-                {['Collaborate', 'Share', 'Grow'].map((tag, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: '11px',
-                      padding: '6px 12px',
-                      borderRadius: '12px',
-                      background: 'rgba(16, 185, 129, 0.2)',
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
-          </div>
-
-          {/* AI Playground Card */}
-          <div
+            AI Playground
+          </h3>
+          <p
             style={{
-              opacity: cardOpacity(card3Progress),
-              transform: `scale(${cardScale(
-                card3Progress
-              )}) translateY(${cardY(card3Progress)}px)`,
-              transformOrigin: 'center bottom',
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: '0 0 16px 0',
+              lineHeight: 1.6,
             }}
           >
-            <GlassCard
-              blur={25}
-              opacity={0.1}
-              glow
+            Smart learning with personalized paths
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span
               style={{
-                padding: '32px 24px',
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(159, 103, 255, 0.05))',
-                borderColor: 'rgba(124, 58, 237, 0.4)',
-                boxShadow:
-                  '0 0 40px rgba(124, 58, 237, 0.4), 0 8px 32px rgba(0, 0, 0, 0.2)',
-                minHeight: '320px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                position: 'relative',
-                overflow: 'hidden',
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
               }}
             >
-              {/* AI glow effect */}
-              <div
-                style={{
-                  position: 'absolute',
-                  width: '200px',
-                  height: '200px',
-                  borderRadius: '50%',
-                  background:
-                    'radial-gradient(circle, rgba(124, 58, 237, 0.3), transparent)',
-                  filter: 'blur(60px)',
-                  top: '-50px',
-                  right: '-50px',
-                  opacity: Math.abs(Math.sin((frame + 30) / 80)) * 0.5 + 0.3,
-                }}
-              />
-
-              <div
-                style={{
-                  fontSize: '48px',
-                  marginBottom: '8px',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                ✨
-              </div>
-              <div
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                AI Playground
-              </div>
-              <div
-                style={{
-                  fontSize: '14px',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  lineHeight: '1.6',
-                  flex: 1,
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                Leverage AI-powered tools to generate summaries, practice questions, and personalized study plans.
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  marginTop: 'auto',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                {['Smart', 'Quick', 'Adaptive'].map((tag, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontSize: '11px',
-                      padding: '6px 12px',
-                      borderRadius: '12px',
-                      background: 'rgba(124, 58, 237, 0.25)',
-                      color: 'rgba(255, 255, 255, 0.9)',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </GlassCard>
+              Smart
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Adaptive
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                color: '#9F67FF',
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              Quick
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Animated dots decoration */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        {[...Array(6)].map((_, i) => {
-          const angle = (i / 6) * Math.PI * 2;
-          const radius = 400 + Math.sin((frame + i * 40) / 120) * 50;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-
-          return (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                width: '3px',
-                height: '3px',
-                borderRadius: '50%',
-                background: 'rgba(124, 58, 237, 0.4)',
-                left: `calc(50% + ${x}px)`,
-                top: `calc(50% + ${y}px)`,
-                boxShadow: '0 0 8px rgba(124, 58, 237, 0.6)',
-                opacity: progress > 0.2 ? 0.6 : 0,
-              }}
-            />
-          );
-        })}
-      </div>
+      {/* Floating particles */}
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: '3px',
+            height: '3px',
+            borderRadius: '50%',
+            background: '#7C3AED',
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            opacity: Math.abs(Math.sin((frame + i * 40) / 80)) * 0.3,
+            boxShadow: '0 0 6px rgba(124, 58, 237, 0.6)',
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
     </AbsoluteFill>
   );
 };

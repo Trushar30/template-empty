@@ -1,4 +1,5 @@
 import "./styles.css";
+import { AbsoluteFill } from "remotion";
 import SceneA_Dashboard from "./components/SceneA_Dashboard";
 import SceneB_QuickActions from "./components/SceneB_QuickActions";
 import SceneC_Modules from "./components/SceneC_Modules";
@@ -16,7 +17,7 @@ export const MyComposition: React.FC<MyCompositionProps> = ({ frame = 0 }) => {
   const sceneD_start = 720;  // 12s - 16s (240 frames)
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <>
       {/* Scene A: Dashboard (0-300 frames) */}
       {frame < 300 && (
         <SceneA_Dashboard frame={frame} startFrame={sceneA_start} />
@@ -36,6 +37,6 @@ export const MyComposition: React.FC<MyCompositionProps> = ({ frame = 0 }) => {
       {frame >= 720 && (
         <SceneD_CTA frame={frame} startFrame={sceneD_start} />
       )}
-    </div>
+    </>
   );
 };

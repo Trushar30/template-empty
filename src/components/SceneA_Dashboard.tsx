@@ -1,6 +1,5 @@
 import React from 'react';
 import { AbsoluteFill, interpolate } from 'remotion';
-import { DeviceMockup, FloatingNavBar, GlassCard } from './UIElements';
 
 interface SceneA_DashboardProps {
   frame: number;
@@ -13,329 +12,230 @@ const SceneA_Dashboard: React.FC<SceneA_DashboardProps> = ({
 }) => {
   const progress = Math.max(0, Math.min(1, (frame - startFrame) / 300));
 
-  // Boot up animation
-  const bootOpacity = interpolate(progress, [0, 0.15, 1], [0, 0, 1]);
-  const bootScale = interpolate(progress, [0, 0.15, 1], [1.2, 1.2, 1]);
+  // Main opacity fade in
+  const fadeOpacity = interpolate(progress, [0, 0.2], [0, 1]);
 
-  // Navigation bar slide up
-  const navBarY = interpolate(progress, [0.4, 0.7], [200, 0]);
-  const navBarOpacity = interpolate(progress, [0.4, 0.7], [0, 1]);
+  // Title scale and opacity
+  const titleScale = interpolate(progress, [0.15, 0.35], [0.8, 1], {
+    easing: (t) => 1 - Math.pow(1 - t, 3),
+  });
+  const titleOpacity = interpolate(progress, [0.15, 0.35], [0, 1]);
 
-  // Dashboard content fade in
-  const contentOpacity = interpolate(progress, [0.2, 0.5], [0, 1]);
+  // Content fade in
+  const contentOpacity = interpolate(progress, [0.3, 0.5], [0, 1]);
 
-  // Active tab cycling (every 1.5s = 90 frames)
-  const cycleFrame = (frame - startFrame) % 90;
-  const activeTab = Math.floor(((frame - startFrame) / 90) % 4);
+  // Card stagger animations
+  const card1Progress = Math.max(0, Math.min(1, (progress - 0.45) / 0.15));
+  const card2Progress = Math.max(0, Math.min(1, (progress - 0.55) / 0.15));
+  const card3Progress = Math.max(0, Math.min(1, (progress - 0.65) / 0.15));
+
+  const getCardStyle = (cardProgress: number) => ({
+    transform: `translateY(${interpolate(cardProgress, [0, 1], [40, 0])}px) scale(${interpolate(cardProgress, [0, 1], [0.9, 1])})`,
+    opacity: interpolate(cardProgress, [0, 1], [0, 1]),
+  });
 
   return (
     <AbsoluteFill
       style={{
         background: 'linear-gradient(135deg, #0B0B14 0%, #13132A 100%)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: '60px 40px',
         overflow: 'hidden',
+        opacity: fadeOpacity,
       }}
     >
-      {/* Ambient light effect */}
+      {/* Animated background orb */}
       <div
         style={{
           position: 'absolute',
-          width: '600px',
-          height: '600px',
+          width: '800px',
+          height: '800px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent)',
-          filter: 'blur(80px)',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.2), transparent)',
+          filter: 'blur(100px)',
           top: '-200px',
-          left: '-200px',
+          right: '-200px',
           pointerEvents: 'none',
         }}
       />
 
-      {/* Device mockup container */}
+      {/* Title Section */}
       <div
         style={{
-          transform: `scale(${bootScale})`,
-          opacity: bootOpacity,
-          transformOrigin: 'center',
+          textAlign: 'center',
+          marginBottom: '80px',
+          transform: `scale(${titleScale})`,
+          opacity: titleOpacity,
+          zIndex: 10,
         }}
       >
-        <DeviceMockup width={420} height={860}>
-          {/* Screen background */}
-          <div
+        <h1
+          style={{
+            fontSize: '64px',
+            fontWeight: 700,
+            color: '#fff',
+            fontFamily: 'Space Grotesk, sans-serif',
+            letterSpacing: '-2px',
+            marginBottom: '20px',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #9F67FF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          ExamSprint
+        </h1>
+        <p
+          style={{
+            fontSize: '20px',
+            color: 'rgba(255, 255, 255, 0.6)',
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 400,
+            margin: 0,
+          }}
+        >
+          Your Learning Hub, Reimagined
+        </p>
+      </div>
+
+      {/* Features Grid */}
+      <div
+        style={{
+          opacity: contentOpacity,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+          maxWidth: '600px',
+          zIndex: 10,
+        }}
+      >
+        {/* Feature 1 */}
+        <div
+          style={{
+            padding: '32px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 32px rgba(124, 58, 237, 0.3)',
+            ...getCardStyle(card1Progress),
+          }}
+        >
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>📚</div>
+          <h3
             style={{
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(180deg, #0F0F1E 0%, #1A1A3A 100%)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              marginBottom: '8px',
             }}
           >
-            {/* Top status bar */}
-            <div
-              style={{
-                height: '40px',
-                paddingTop: '12px',
-                paddingBottom: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingLeft: '20px',
-                paddingRight: '20px',
-                fontSize: '12px',
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontWeight: 500,
-              }}
-            >
-              <span>9:41</span>
-              <span>●●●●●</span>
-            </div>
-
-            {/* Dashboard header */}
-            <div
-              style={{
-                opacity: contentOpacity,
-                paddingLeft: '20px',
-                paddingRight: '20px',
-                paddingTop: '20px',
-                marginBottom: '20px',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  letterSpacing: '-0.5px',
-                  marginBottom: '8px',
-                }}
-              >
-                Welcome to ExamSprint
-              </div>
-              <div
-                style={{
-                  fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  fontWeight: 400,
-                }}
-              >
-                Your learning hub, reimagined
-              </div>
-            </div>
-
-            {/* Feature showcase cards */}
-            <div
-              style={{
-                flex: 1,
-                paddingLeft: '20px',
-                paddingRight: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                opacity: contentOpacity,
-                overflow: 'hidden',
-              }}
-            >
-              {/* Resource card */}
-              <GlassCard
-                blur={25}
-                opacity={0.1}
-                style={{
-                  padding: '16px',
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'center',
-                  minHeight: '80px',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '32px',
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background:
-                      'linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(159, 103, 255, 0.2))',
-                    borderRadius: '12px',
-                    boxShadow: '0 0 16px rgba(124, 58, 237, 0.3)',
-                  }}
-                >
-                  📚
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#fff',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    Resource Hub
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '12px',
-                      color: 'rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    Find notes, PDFs & more
-                  </div>
-                </div>
-              </GlassCard>
-
-              {/* Classes card */}
-              <GlassCard
-                blur={25}
-                opacity={0.1}
-                style={{
-                  padding: '16px',
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'center',
-                  minHeight: '80px',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '32px',
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background:
-                      'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2))',
-                    borderRadius: '12px',
-                    boxShadow: '0 0 16px rgba(16, 185, 129, 0.3)',
-                  }}
-                >
-                  👥
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#fff',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    Study Groups
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '12px',
-                      color: 'rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    Join cohorts & collaborate
-                  </div>
-                </div>
-              </GlassCard>
-
-              {/* AI card */}
-              <GlassCard
-                blur={25}
-                opacity={0.1}
-                glow
-                style={{
-                  padding: '16px',
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'center',
-                  minHeight: '80px',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '32px',
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background:
-                      'linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(159, 103, 255, 0.3))',
-                    borderRadius: '12px',
-                    boxShadow: '0 0 20px rgba(124, 58, 237, 0.5)',
-                  }}
-                >
-                  ✨
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#fff',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    AI Playground
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '12px',
-                      color: 'rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    Smart learning powered by AI
-                  </div>
-                </div>
-              </GlassCard>
-            </div>
-
-            {/* Floating Navigation Bar */}
-            <div
-              style={{
-                position: 'relative',
-                height: '100px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                transform: `translateY(${navBarY}px)`,
-                opacity: navBarOpacity,
-              }}
-            >
-              <FloatingNavBar activeTab={activeTab} frame={frame} />
-            </div>
-          </div>
-        </DeviceMockup>
-      </div>
-
-      {/* Floating particles background */}
-      <div
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          opacity: 0.5,
-        }}
-      >
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={i}
+            Resource Hub
+          </h3>
+          <p
             style={{
-              position: 'absolute',
-              width: '2px',
-              height: '2px',
-              borderRadius: '50%',
-              background: 'rgba(124, 58, 237, 0.6)',
-              left: `${20 + i * 30}%`,
-              top: `${30 + i * 20}%`,
-              opacity: Math.abs(Math.sin((frame + i * 30) / 60)) * 0.5,
-              boxShadow: '0 0 8px rgba(124, 58, 237, 0.8)',
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: 0,
             }}
-          />
-        ))}
+          >
+            Curated study materials and notes shared by students worldwide
+          </p>
+        </div>
+
+        {/* Feature 2 */}
+        <div
+          style={{
+            padding: '32px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 32px rgba(124, 58, 237, 0.3)',
+            ...getCardStyle(card2Progress),
+          }}
+        >
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>👥</div>
+          <h3
+            style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              marginBottom: '8px',
+            }}
+          >
+            Study Groups
+          </h3>
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: 0,
+            }}
+          >
+            Connect with peers, collaborate, and learn together in real-time
+          </p>
+        </div>
+
+        {/* Feature 3 */}
+        <div
+          style={{
+            padding: '32px',
+            borderRadius: '24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 0 32px rgba(124, 58, 237, 0.3)',
+            ...getCardStyle(card3Progress),
+          }}
+        >
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>✨</div>
+          <h3
+            style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#fff',
+              fontFamily: 'Space Grotesk, sans-serif',
+              marginBottom: '8px',
+            }}
+          >
+            AI Playground
+          </h3>
+          <p
+            style={{
+              fontSize: '14px',
+              color: 'rgba(255, 255, 255, 0.6)',
+              margin: 0,
+            }}
+          >
+            Smart study plans, mock tests, and personalized learning paths
+          </p>
+        </div>
       </div>
+
+      {/* Floating particles */}
+      {[...Array(5)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: '4px',
+            height: '4px',
+            borderRadius: '50%',
+            background: '#7C3AED',
+            left: `${20 + i * 25}%`,
+            top: `${40 + i * 15}%`,
+            opacity: Math.abs(Math.sin((frame + i * 60) / 120)) * 0.4,
+            boxShadow: '0 0 8px rgba(124, 58, 237, 0.8)',
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
     </AbsoluteFill>
   );
 };
